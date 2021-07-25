@@ -1,0 +1,34 @@
+Board
+
+The board is 6-dimensional with coordinates given as (x₁, x₂, x₃, x₄, x₅, x₆).
+It is possible to use fewer dimensions by restricting some xₙ to 1,
+e.g. choosing (x₁, x₂, x₃, 1, 1, 1) as a board size results in a 3-dimensional
+board.
+Currently only the von Neumann neigborhood is supported, i.e. each cell has up
+to 12 adjacent cells.
+
+Views
+
+Multiple views of the board are shown at the same time, all are slices along
+x₄₋₆.
+
+Cheats
+
+It is possible to specify a limited number of cheats, when used they reveal
+the true state of a cell. This is intended to reduce the number of situations
+where guessing is required.
+
+Controls
+
+a, d    movement along x1
+w, s    movement along x2
+q, e    movement along x3
+j, l    movement along x4
+i, k    movement along x5
+u, o    movement along x6
+f       flag a cell as containing a mine
+r       mark a cell as maybe containing a mine
+c       use a cheat
+Space   uncover a cell
+Esc     quit the game
+F1      show the help
