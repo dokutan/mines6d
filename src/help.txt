@@ -20,12 +20,12 @@ where guessing is required.
 
 Controls
 
-a, d    movement along x1
-w, s    movement along x2
-q, e    movement along x3
-j, l    movement along x4
-i, k    movement along x5
-u, o    movement along x6
+a, d    movement along x₁
+w, s    movement along x₂
+q, e    movement along x₃
+j, l    movement along x₄
+i, k    movement along x₅
+u, o    movement along x₆
 f       flag a cell as containing a mine
 r       mark a cell as maybe containing a mine
 c       use a cheat
