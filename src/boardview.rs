@@ -145,13 +145,30 @@ impl cursive::view::View for BoardView {
         let view_height = y;
 
         // print status (position, size, …)
+        let current_cell = self.board.board[[
+            self.current_view.0,
+            self.current_view.1,
+            self.current_view.2,
+            self.current_view.3,
+            self.current_pos.0,
+            self.current_pos.1,
+        ]];
+        let neighboring_mines = if board::Board::is_uncovered(current_cell) {
+            format!("{}", board::Board::mines(current_cell))
+        } else {
+            "?".to_string()
+        };
+
         printer.print((0, 0), self.format_pos_string().as_str());
         printer.print((0, 1), self.format_size_string().as_str());
         printer.print(
             (0, 2),
             format!(
-                "Mines    {}+{}/{}",
-                self.board.mines_flagged, self.board.mines_marked, self.board.mines_total
+                "Mines    {}+{}/{} ({})",
+                self.board.mines_flagged,
+                self.board.mines_marked,
+                self.board.mines_total,
+                neighboring_mines
             )
             .as_str(),
         );
@@ -172,7 +189,7 @@ impl cursive::view::View for BoardView {
         if x3 > 1 {
             printer.print((x, y - 1), "x₃: +1");
             self.draw_board(printer, (x, y), (0, 0, 0, 1));
-            printer.print((x, y + view_height + space - 1), "x₃ - 1");
+            printer.print((x, y + view_height + space - 1), "x₃ -1");
             self.draw_board(printer, (x, y + view_height + space), (0, 0, 0, -1));
             x += view_width + space;
         }
