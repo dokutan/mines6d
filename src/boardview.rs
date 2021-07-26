@@ -16,9 +16,14 @@ pub struct BoardView {
     current_view: (usize, usize, usize, usize),
     current_pos: (usize, usize),
     tileset: tileset::Tileset,
+    /// Spacing factor for the individual cells
     h_space: usize,
+    /// Space between the additional views
     view_padding: usize,
+    /// Number of lines used to display the status
     y_offset: usize,
+    /// Length of the labels for the additional views
+    label_len: usize,
 }
 
 impl BoardView {
@@ -38,6 +43,7 @@ impl BoardView {
             h_space: 2,
             view_padding: 2,
             y_offset: 5,
+            label_len: 6,
         }
     }
 
@@ -134,8 +140,8 @@ impl BoardView {
 impl cursive::view::View for BoardView {
     fn draw(&self, printer: &Printer) {
         // the size of a single view
-        let (_, _, _, _, y, x) = self.board.board.dim();
-        let view_width = x * self.h_space;
+        let (x6, x5, x4, x3, y, x) = self.board.board.dim();
+        let view_width = max(x * self.h_space, self.label_len);
         let view_height = y;
 
         // print status (position, size, …)
@@ -160,43 +166,76 @@ impl cursive::view::View for BoardView {
         // print additional views
         let space = self.view_padding;
         let y = view_height + self.y_offset + space;
+        let mut x = 0;
 
         // x3
-        let x = 0;
-        printer.print((x, y - 1), "x₃: +1");
-        self.draw_board(printer, (x, y), (0, 0, 0, 1));
-        printer.print((x, y + view_height + space - 1), "x₃ - 1");
-        self.draw_board(printer, (x, y + view_height + space), (0, 0, 0, -1));
+        if x3 > 1 {
+            printer.print((x, y - 1), "x₃: +1");
+            self.draw_board(printer, (x, y), (0, 0, 0, 1));
+            printer.print((x, y + view_height + space - 1), "x₃ - 1");
+            self.draw_board(printer, (x, y + view_height + space), (0, 0, 0, -1));
+            x += view_width + space;
+        }
 
         // x4
-        let x = view_width + space;
-        printer.print((x, y - 1), "x₄: +1");
-        self.draw_board(printer, (x, y), (0, 0, 1, 0));
-        printer.print((x, y + view_height + space - 1), "x₄: -1");
-        self.draw_board(printer, (x, y + view_height + space), (0, 0, -1, 0));
+        if x4 > 1 {
+            printer.print((x, y - 1), "x₄: +1");
+            self.draw_board(printer, (x, y), (0, 0, 1, 0));
+            printer.print((x, y + view_height + space - 1), "x₄: -1");
+            self.draw_board(printer, (x, y + view_height + space), (0, 0, -1, 0));
+            x += view_width + space;
+        }
 
         // x5
-        let x = (view_width + space) * 2;
-        printer.print((x, y - 1), "x₅: +1");
-        self.draw_board(printer, (x, y), (0, 1, 0, 0));
-        printer.print((x, y + view_height + space - 1), "x₅: -1");
-        self.draw_board(printer, (x, y + view_height + space), (0, -1, 0, 0));
+        if x5 > 1 {
+            printer.print((x, y - 1), "x₅: +1");
+            self.draw_board(printer, (x, y), (0, 1, 0, 0));
+            printer.print((x, y + view_height + space - 1), "x₅: -1");
+            self.draw_board(printer, (x, y + view_height + space), (0, -1, 0, 0));
+            x += view_width + space;
+        }
 
         // x6
-        let x = (view_width + space) * 3;
-        printer.print((x, y - 1), "x₆: +1");
-        self.draw_board(printer, (x, y), (1, 0, 0, 0));
-        printer.print((x, y + view_height + space - 1), "x₆: -1");
-        self.draw_board(printer, (x, y + view_height + space), (-1, 0, 0, 0));
+        if x6 > 1 {
+            printer.print((x, y - 1), "x₆: +1");
+            self.draw_board(printer, (x, y), (1, 0, 0, 0));
+            printer.print((x, y + view_height + space - 1), "x₆: -1");
+            self.draw_board(printer, (x, y + view_height + space), (-1, 0, 0, 0));
+        }
     }
 
     fn required_size(&mut self, _: Vec2) -> Vec2 {
-        let (_, _, _, _, y, x) = self.board.board.dim();
+        let (x6, x5, x4, x3, y, x) = self.board.board.dim();
 
-        let width_views = 4 * x * self.h_space + (3 * self.view_padding);
+        // number of additional views
+        let mut num_views_x = 0;
+        if x6 > 1 {
+            num_views_x += 1;
+        }
+        if x5 > 1 {
+            num_views_x += 1;
+        }
+        if x4 > 1 {
+            num_views_x += 1;
+        }
+        if x3 > 1 {
+            num_views_x += 1;
+        }
+
+        // number of spaces between the views in x direction
+        let num_padding_x = if num_views_x != 0 { num_views_x - 1 } else { 0 };
+
+        // number of total views in the y direction
+        let num_views_y = if num_views_x == 0 { 1 } else { 3 };
+
+        // number of spaces between the views in y direction
+        let num_padding_y = num_views_y - 1;
+
+        let width_views = num_views_x * max(x * self.h_space, self.label_len)
+            + (num_padding_x * self.view_padding);
         let width_size = self.format_size_string().len();
 
-        let height = self.y_offset + (3 * y) + (2 * self.view_padding);
+        let height = self.y_offset + (num_views_y * y) + (num_padding_y * self.view_padding);
 
         Vec2::new(max(width_views, width_size), height)
     }
