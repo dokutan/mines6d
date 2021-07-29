@@ -1,3 +1,4 @@
+use clap::{App, Arg};
 use cursive::{
     event::{Event, Key},
     traits::*,
@@ -5,18 +6,37 @@ use cursive::{
     views::{Dialog, DummyView, EditView, LinearLayout, Panel, ScrollView, TextView},
     Cursive,
 };
-// use directories::ProjectDirs;
-use std::cmp::max;
+use directories::ProjectDirs;
+use std::{cmp::max, process::exit};
 
 mod board;
 mod boardview;
 
 fn main() {
-    /* TODO! implement configuration
-    let proj_dirs = ProjectDirs::from("org", "foo", "6dmines").unwrap();
-    println!("{}", proj_dirs.data_dir().display()); // for save data
-    println!("{}", proj_dirs.config_dir().display()); // for config data
-    */
+    // parse commandline arguments
+    let args = App::new("mines6d")
+        .arg(
+            Arg::new("paths")
+                .short('p')
+                .long("paths")
+                .about("show the config and history paths and exit"),
+        )
+        .get_matches();
+
+    // get config and save paths
+    let project_dirs = ProjectDirs::from("org", "foo", "6dmines");
+
+    // print config and history paths
+    if args.occurrences_of("paths") > 0 {
+        let project_dirs = project_dirs.unwrap_or_else(|| {
+            println!("Couldn't determine paths");
+            exit(1);
+        });
+
+        println!("{}", project_dirs.data_dir().display());
+        println!("{}", project_dirs.config_dir().display());
+        exit(0);
+    }
 
     let mut siv = cursive::default();
 
