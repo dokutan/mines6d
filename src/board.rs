@@ -16,7 +16,7 @@ pub struct Board {
 
 impl Board {
     /*
-    The values of the cells are use defined as follows:
+    The values of the cells are defined as follows:
 
     bits 15-14 : 00 → covered, 01 → flagged, 10 → marked, 11 → uncovered
     bit  13    : 0 → empty, 1 → mine
@@ -78,22 +78,28 @@ impl Board {
     }
 
     /// Decrements self.cheats_remaining and reveals the contents of a covered cell if self.cheats_remaining > 0.
-    pub fn cheat_cell(&mut self, cell: (usize, usize, usize, usize, usize, usize)) {
+    /// Returns true if all mines have been correctly identified.
+    pub fn cheat_cell(&mut self, cell: (usize, usize, usize, usize, usize, usize)) -> bool {
         if self.cheats_remaining == 0 {
-            return;
+            return false;
         }
 
         let (x6, x5, x4, x3, x2, x1) = cell;
 
-        if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]])
+        let result = if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]])
             && !Board::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]])
         {
+            self.cheats_remaining -= 1;
             self.uncover_recursively(cell, 3);
-            self.cheats_remaining -= 1;
+            false
         } else if !Board::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]]) {
-            self.flag_cell(cell);
             self.cheats_remaining -= 1;
-        }
+            self.flag_cell(cell)
+        } else {
+            false
+        };
+
+        result
     }
 
     /// Flags a cell as containing a mine, returns true if all mines have been correctly identified.

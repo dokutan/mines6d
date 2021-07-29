@@ -156,6 +156,11 @@ fn show_board(
         s.pop_layer();
         show_won(s);
     });
+
+    s.add_global_callback(Event::Char('c'), |s| {
+        s.pop_layer();
+        show_won(s);
+    });
 }
 
 // returns the current value of the EditView having the given name

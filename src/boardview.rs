@@ -6,13 +6,12 @@ use cursive::{
     Printer, Vec2,
 };
 use std::cmp::max;
-use std::rc::Rc;
 
 mod tileset;
 
 /// This struct is responsible for the interaction between the user and the board.
 pub struct BoardView {
-    board: Rc<board::Board>,
+    board: board::Board,
     current_view: (usize, usize, usize, usize),
     current_pos: (usize, usize),
     tileset: tileset::Tileset,
@@ -28,7 +27,7 @@ pub struct BoardView {
 
 impl BoardView {
     pub fn new(size: (usize, usize, usize, usize, usize, usize), mines: u32, cheats: u32) -> Self {
-        let board = Rc::new(board::Board::new(size, mines, cheats));
+        let board = board::Board::new(size, mines, cheats);
 
         let current_view = (0, 0, 0, 0);
         let current_pos = (0, 0);
@@ -278,10 +277,7 @@ impl cursive::view::View for BoardView {
                 let (x2, x1) = self.current_pos;
                 let (x6, x5, x4, x3) = self.current_view;
 
-                if Rc::get_mut(&mut self.board)
-                    .unwrap()
-                    .uncover_cell((x6, x5, x4, x3, x2, x1))
-                {
+                if self.board.uncover_cell((x6, x5, x4, x3, x2, x1)) {
                     return EventResult::Ignored;
                 }
             }
@@ -291,10 +287,7 @@ impl cursive::view::View for BoardView {
                 let (x2, x1) = self.current_pos;
                 let (x6, x5, x4, x3) = self.current_view;
 
-                if Rc::get_mut(&mut self.board)
-                    .unwrap()
-                    .flag_cell((x6, x5, x4, x3, x2, x1))
-                {
+                if self.board.flag_cell((x6, x5, x4, x3, x2, x1)) {
                     return EventResult::Ignored;
                 }
             }
@@ -304,9 +297,7 @@ impl cursive::view::View for BoardView {
                 let (x2, x1) = self.current_pos;
                 let (x6, x5, x4, x3) = self.current_view;
 
-                Rc::get_mut(&mut self.board)
-                    .unwrap()
-                    .mark_cell((x6, x5, x4, x3, x2, x1));
+                self.board.mark_cell((x6, x5, x4, x3, x2, x1));
             }
 
             // cheat
@@ -314,9 +305,9 @@ impl cursive::view::View for BoardView {
                 let (x2, x1) = self.current_pos;
                 let (x6, x5, x4, x3) = self.current_view;
 
-                Rc::get_mut(&mut self.board)
-                    .unwrap()
-                    .cheat_cell((x6, x5, x4, x3, x2, x1));
+                if self.board.cheat_cell((x6, x5, x4, x3, x2, x1)) {
+                    return EventResult::Ignored;
+                }
             }
 
             _ => return EventResult::Ignored,
