@@ -50,6 +50,11 @@ fn main() {
 
 // shows the main menu
 fn show_main_menu(s: &mut Cursive) {
+    // remove callbacks to prevent the winning/losing dialogs being shown accidentally
+    s.clear_global_callbacks('f');
+    s.clear_global_callbacks('c');
+    s.clear_global_callbacks(' ');
+
     s.add_layer(
         Dialog::around(
             LinearLayout::vertical()
@@ -110,6 +115,7 @@ fn show_help(s: &mut Cursive) {
 
 // shows the "you lost" dialog
 fn show_lost(s: &mut Cursive) {
+    s.pop_layer();
     s.add_layer(
         Dialog::text("Return to the main menu")
             .title("You lost")
@@ -122,6 +128,7 @@ fn show_lost(s: &mut Cursive) {
 
 // shows the "you won" dialog
 fn show_won(s: &mut Cursive) {
+    s.pop_layer();
     s.add_layer(
         Dialog::text("Return to the main menu")
             .title("You won")
@@ -147,18 +154,16 @@ fn show_board(
         ScrollView::new(bv.with_name("boardview")).scroll_x(true),
     ));
 
+    // add callbacks
     s.add_global_callback(Event::Char(' '), |s| {
-        s.pop_layer();
         show_lost(s);
     });
 
     s.add_global_callback(Event::Char('f'), |s| {
-        s.pop_layer();
         show_won(s);
     });
 
     s.add_global_callback(Event::Char('c'), |s| {
-        s.pop_layer();
         show_won(s);
     });
 }
