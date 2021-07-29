@@ -189,7 +189,7 @@ impl cursive::view::View for BoardView {
         if x3 > 1 {
             printer.print((x, y - 1), "x₃: +1");
             self.draw_board(printer, (x, y), (0, 0, 0, 1));
-            printer.print((x, y + view_height + space - 1), "x₃ -1");
+            printer.print((x, y + view_height + space - 1), "x₃: -1");
             self.draw_board(printer, (x, y + view_height + space), (0, 0, 0, -1));
             x += view_width + space;
         }
