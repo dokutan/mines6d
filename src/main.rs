@@ -11,6 +11,8 @@ use std::{cmp::max, process::exit};
 
 mod board;
 mod boardview;
+mod options;
+use options::Options;
 
 fn main() {
     // parse commandline arguments
@@ -23,18 +25,28 @@ fn main() {
         )
         .get_matches();
 
-    // get config and save paths
-    let project_dirs = ProjectDirs::from("org", "foo", "6dmines");
-
     // print config and history paths
     if args.occurrences_of("paths") > 0 {
-        let project_dirs = project_dirs.unwrap_or_else(|| {
-            println!("Couldn't determine paths");
-            exit(1);
-        });
+        let options = get_options();
 
-        println!("{}", project_dirs.data_dir().display());
-        println!("{}", project_dirs.config_dir().display());
+        println!(
+            "{}\n{}",
+            options
+                .history_path
+                .unwrap_or_else(|| {
+                    println!("history path is undefined");
+                    exit(1);
+                })
+                .display(),
+            options
+                .config_path
+                .unwrap_or_else(|| {
+                    println!("config path is undefined");
+                    exit(1);
+                })
+                .display(),
+        );
+
         exit(0);
     }
 
@@ -46,6 +58,27 @@ fn main() {
 
     show_main_menu(&mut siv);
     siv.run();
+}
+
+// get the global options from the config file
+fn get_options() -> Options {
+    let mut options: Options = Options::new();
+
+    // get config and save paths
+    if let Some(project_dirs) = ProjectDirs::from("org", "foo", "6dmines") {
+        let mut history_path = project_dirs.data_dir().to_path_buf();
+        history_path.push("history.json");
+
+        let mut config_path = project_dirs.config_dir().to_path_buf();
+        config_path.push("config");
+
+        options.history_path = Some(history_path);
+        options.config_path = Some(config_path);
+    };
+
+    // TODO! parse config file
+
+    options
 }
 
 // shows the main menu
@@ -97,6 +130,7 @@ fn show_main_menu(s: &mut Cursive) {
             let mines = get_editview_as(s, "edit_mines", 15);
             let cheats = get_editview_as(s, "edit_cheats", 0);
 
+            s.pop_layer();
             show_board(s, (x6, x5, x4, x3, x2, x1), mines, cheats);
         }),
     );
@@ -115,7 +149,6 @@ fn show_help(s: &mut Cursive) {
 
 // shows the "you lost" dialog
 fn show_lost(s: &mut Cursive) {
-    s.pop_layer();
     s.add_layer(
         Dialog::text("Return to the main menu")
             .title("You lost")
@@ -128,7 +161,6 @@ fn show_lost(s: &mut Cursive) {
 
 // shows the "you won" dialog
 fn show_won(s: &mut Cursive) {
-    s.pop_layer();
     s.add_layer(
         Dialog::text("Return to the main menu")
             .title("You won")
@@ -146,24 +178,25 @@ fn show_board(
     mines: u32,
     cheats: u32,
 ) {
-    s.pop_layer();
-
     // add the BoardView
-    let bv = boardview::BoardView::new(size, mines, cheats);
+    let bv = boardview::BoardView::new(size, mines, cheats, get_options());
     s.add_layer(Panel::new(
         ScrollView::new(bv.with_name("boardview")).scroll_x(true),
     ));
 
     // add callbacks
     s.add_global_callback(Event::Char(' '), |s| {
+        s.pop_layer();
         show_lost(s);
     });
 
     s.add_global_callback(Event::Char('f'), |s| {
+        s.pop_layer();
         show_won(s);
     });
 
     s.add_global_callback(Event::Char('c'), |s| {
+        s.pop_layer();
         show_won(s);
     });
 }

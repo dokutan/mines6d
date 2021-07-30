@@ -11,6 +11,7 @@ pub struct Board {
     pub mines_total: u32,
     pub mines_flagged: u32,
     pub mines_marked: u32,
+    pub cheats_total: u32,
     pub cheats_remaining: u32,
 }
 
@@ -40,6 +41,7 @@ impl Board {
             mines_total: mines,
             mines_flagged: 0,
             mines_marked: 0,
+            cheats_total: cheats,
             cheats_remaining: cheats,
         };
         b.place_mines(b.mines_total);

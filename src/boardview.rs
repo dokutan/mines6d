@@ -1,11 +1,16 @@
-use crate::board;
+use crate::{board, Options};
 use cursive::{
     event::{Event, EventResult},
     theme::{ColorStyle, Style},
     utils::span::{SpannedStr, SpannedString},
     Printer, Vec2,
 };
-use std::cmp::max;
+use std::{
+    cmp::max,
+    fs::{create_dir, OpenOptions},
+    io::Write,
+    path::Path,
+};
 
 mod tileset;
 
@@ -23,10 +28,17 @@ pub struct BoardView {
     y_offset: usize,
     /// Length of the labels for the additional views
     label_len: usize,
+    /// Path of the history file
+    options: Options,
 }
 
 impl BoardView {
-    pub fn new(size: (usize, usize, usize, usize, usize, usize), mines: u32, cheats: u32) -> Self {
+    pub fn new(
+        size: (usize, usize, usize, usize, usize, usize),
+        mines: u32,
+        cheats: u32,
+        options: Options,
+    ) -> Self {
         let board = board::Board::new(size, mines, cheats);
 
         let current_view = (0, 0, 0, 0);
@@ -43,6 +55,7 @@ impl BoardView {
             view_padding: 2,
             y_offset: 5,
             label_len: 6,
+            options: options,
         }
     }
 
@@ -132,6 +145,40 @@ impl BoardView {
             max
         } else {
             a as usize
+        }
+    }
+
+    /// Writes the result and options of the current game to the history file.
+    fn store_result(&self, result: &str) {
+        if let Some(history_path) = &self.options.history_path {
+            // attempt to create parent directory if it doesn't exist
+            if let Some(parent) = history_path.parent() {
+                if !Path::exists(parent) {
+                    let _ = create_dir(parent);
+                }
+            }
+
+            // write to history file
+            if let Ok(mut file) = OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(history_path)
+            {
+                let size = self.board.board.dim();
+                let _ = file.write_all(
+                    format!("{{\"result\": \"{}\", \"mines\": {}, \"cheats\": {}, \"size\": [{}, {}, {}, {}, {}, {}]}}\n",
+                        result,
+                        self.board.mines_total,
+                        self.board.cheats_total,
+                        size.5,
+                        size.4,
+                        size.3,
+                        size.2,
+                        size.1,
+                        size.0
+                    ).as_bytes()
+                );
+            }
         }
     }
 }
@@ -278,6 +325,7 @@ impl cursive::view::View for BoardView {
                 let (x6, x5, x4, x3) = self.current_view;
 
                 if self.board.uncover_cell((x6, x5, x4, x3, x2, x1)) {
+                    self.store_result("lost");
                     return EventResult::Ignored;
                 }
             }
@@ -288,6 +336,7 @@ impl cursive::view::View for BoardView {
                 let (x6, x5, x4, x3) = self.current_view;
 
                 if self.board.flag_cell((x6, x5, x4, x3, x2, x1)) {
+                    self.store_result("won");
                     return EventResult::Ignored;
                 }
             }
@@ -306,6 +355,7 @@ impl cursive::view::View for BoardView {
                 let (x6, x5, x4, x3) = self.current_view;
 
                 if self.board.cheat_cell((x6, x5, x4, x3, x2, x1)) {
+                    self.store_result("won");
                     return EventResult::Ignored;
                 }
             }
