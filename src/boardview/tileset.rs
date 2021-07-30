@@ -9,10 +9,10 @@ pub struct Tileset {
 
 impl Tileset {
     /// Creates a new Tileset containing default values.
-    pub fn new() -> Self {
+    pub fn new(use_color: bool, use_unicode: bool) -> Self {
         Tileset {
-            use_color: true,
-            use_unicode: true,
+            use_color: use_color,
+            use_unicode: use_unicode,
         }
     }
 

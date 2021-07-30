@@ -7,7 +7,7 @@ use cursive::{
     Cursive,
 };
 use directories::ProjectDirs;
-use std::{cmp::max, process::exit};
+use std::{cmp::max, fs::read_to_string, process::exit};
 
 mod board;
 mod boardview;
@@ -65,18 +65,25 @@ fn get_options() -> Options {
     let mut options: Options = Options::new();
 
     // get config and save paths
-    if let Some(project_dirs) = ProjectDirs::from("org", "foo", "6dmines") {
+    if let Some(project_dirs) = ProjectDirs::from("org", "foo", "mines6d") {
         let mut history_path = project_dirs.data_dir().to_path_buf();
         history_path.push("history.json");
 
         let mut config_path = project_dirs.config_dir().to_path_buf();
-        config_path.push("config");
+        config_path.push("config.json");
 
         options.history_path = Some(history_path);
         options.config_path = Some(config_path);
     };
 
-    // TODO! parse config file
+    // parse config file
+    if let Some(ref config_path) = options.config_path {
+        if let Ok(config_string) = read_to_string(config_path) {
+            if let Ok(config) = serde_json::from_str(config_string.as_str()) {
+                options.config = config;
+            }
+        }
+    }
 
     options
 }

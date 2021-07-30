@@ -44,14 +44,33 @@ impl BoardView {
         let current_view = (0, 0, 0, 0);
         let current_pos = (0, 0);
 
-        let tileset = tileset::Tileset::new();
+        // get tileset options from config
+        let use_color = if let Some(ref config) = options.config {
+            config.use_color
+        } else {
+            true
+        };
+        let use_unicode = if let Some(ref config) = options.config {
+            config.use_unicode
+        } else {
+            true
+        };
+
+        let tileset = tileset::Tileset::new(use_color, use_unicode);
+
+        // get h_space from config
+        let h_space = if let Some(ref config) = options.config {
+            config.cells_h_space
+        } else {
+            2
+        };
 
         BoardView {
             board,
             current_view,
             current_pos,
             tileset,
-            h_space: 2,
+            h_space: h_space,
             view_padding: 2,
             y_offset: 5,
             label_len: 6,
