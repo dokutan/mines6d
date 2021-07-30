@@ -83,11 +83,6 @@ fn get_options() -> Options {
 
 // shows the main menu
 fn show_main_menu(s: &mut Cursive) {
-    // remove callbacks to prevent the winning/losing dialogs being shown accidentally
-    s.clear_global_callbacks('f');
-    s.clear_global_callbacks('c');
-    s.clear_global_callbacks(' ');
-
     s.add_layer(
         Dialog::around(
             LinearLayout::vertical()
@@ -138,6 +133,11 @@ fn show_main_menu(s: &mut Cursive) {
 
 // shows the help dialog
 fn show_help(s: &mut Cursive) {
+    // remove callbacks to prevent the winning/losing dialogs being shown accidentally
+    s.clear_global_callbacks('f');
+    s.clear_global_callbacks('c');
+    s.clear_global_callbacks(' ');
+
     s.add_layer(
         Dialog::around(TextView::new(include_str!("help.txt")).scrollable())
             .title("Help")
@@ -149,6 +149,11 @@ fn show_help(s: &mut Cursive) {
 
 // shows the "you lost" dialog
 fn show_lost(s: &mut Cursive) {
+    // remove callbacks to prevent the winning/losing dialogs being shown accidentally
+    s.clear_global_callbacks('f');
+    s.clear_global_callbacks('c');
+    s.clear_global_callbacks(' ');
+
     s.add_layer(
         Dialog::text("Return to the main menu")
             .title("You lost")
