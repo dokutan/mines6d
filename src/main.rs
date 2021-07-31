@@ -7,12 +7,18 @@ use cursive::{
     Cursive,
 };
 use directories::ProjectDirs;
-use std::{cmp::max, fs::read_to_string, process::exit};
+use std::{
+    cmp::max,
+    fs::{create_dir, read_to_string, OpenOptions},
+    io::Write,
+    path::Path,
+    process::exit,
+};
 
 mod board;
 mod boardview;
 mod options;
-use options::Options;
+use options::{Config, Options};
 
 fn main() {
     // parse commandline arguments
@@ -22,6 +28,12 @@ fn main() {
                 .short('p')
                 .long("paths")
                 .about("show the config and history paths and exit"),
+        )
+        .arg(
+            Arg::new("default-config")
+                .short('d')
+                .long("default-config")
+                .about("create the default configuration file"),
         )
         .get_matches();
 
@@ -46,6 +58,41 @@ fn main() {
                 })
                 .display(),
         );
+
+        exit(0);
+    }
+
+    // create default config file
+    if args.occurrences_of("default-config") > 0 {
+        let options = get_options();
+
+        if let Some(config_path) = options.config_path {
+            // attempt to create parent directory if it doesn't exist
+            if let Some(parent) = config_path.parent() {
+                if !Path::exists(parent) {
+                    let _ = create_dir(parent);
+                }
+            }
+
+            // open config file
+            match OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(config_path)
+            {
+                Ok(mut file) => {
+                    // convert a string to Config
+                    if let Ok(config) = serde_json::from_str::<Config>("{}") {
+                        // and Config back to a String
+                        if let Ok(mut config_string) = serde_json::to_string(&config) {
+                            config_string.push('\n');
+                            let _ = file.write_all(config_string.as_bytes());
+                        }
+                    }
+                }
+                Err(err) => println!("Couldn't open file: {}", err),
+            }
+        }
 
         exit(0);
     }
