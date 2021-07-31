@@ -22,7 +22,23 @@ Install, then run
 ```
 mines6d
 ```
-You can press ``F1`` to show the manual.
+You can press ``F1`` to show the manual, or run
+```
+mines6d -h
+```
+to see a list of available commandline arguments.
+
+## Files
+
+```
+mines6d -p
+```
+To see the paths of the configuration and history file.
+
+```
+mines6d -d
+```
+To create the default configuration file.
 
 ## License
 GNU GPLv3 or later
