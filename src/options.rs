@@ -27,6 +27,8 @@ pub struct Config {
     pub use_unicode: bool,
     #[serde(default = "default_use_color")]
     pub use_color: bool,
+    #[serde(default = "default_theme_file")]
+    pub theme_file: String,
 }
 
 // default config values
@@ -40,4 +42,8 @@ fn default_use_unicode() -> bool {
 
 fn default_use_color() -> bool {
     true
+}
+
+fn default_theme_file() -> String {
+    "".to_string()
 }

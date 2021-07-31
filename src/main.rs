@@ -99,6 +99,17 @@ fn main() {
 
     let mut siv = cursive::default();
 
+    // set cursive theme
+    let options = get_options();
+    if let Some(config) = options.config {
+        if config.theme_file != "" {
+            match siv.load_theme_file(config.theme_file.as_str()) {
+                Err(err) => println!("Couldn't load theme file: {:?}", err),
+                _ => (),
+            }
+        }
+    }
+
     // add global callbacks
     siv.add_global_callback(Event::Key(Key::Esc), |s| s.quit());
     siv.add_global_callback(Event::Key(Key::F1), |s| show_help(s));

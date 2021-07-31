@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 clap = "3.0.0-beta.2"
-cursive = "*"
+cursive = { version = "*", features = ["toml"] }
 ndarray = "0.15.3"
 rand = "0.8.4"
 directories = "3.0"
