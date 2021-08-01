@@ -253,13 +253,6 @@ impl Board {
         }
     }
 
-    // Increments the value of the specified cell if the cell is empty.
-    fn inc_if_empty(&mut self, x6: usize, x5: usize, x4: usize, x3: usize, x2: usize, x1: usize) {
-        if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
-            self.board[[x6, x5, x4, x3, x2, x1]] += 1;
-        }
-    }
-
     /// Randomly places the given number of mines on the board.
     fn place_mines(&mut self, number: u32) {
         let mut rng = rand::thread_rng();
@@ -278,42 +271,13 @@ impl Board {
                 self.board[[x6, x5, x4, x3, x2, x1]] = 0x2001;
                 number -= 1;
 
-                // increment the values of the neighbouring cells, TODO! make neighborhood rules configurable
-                if x6 > 0 {
-                    self.inc_if_empty(x6 - 1, x5, x4, x3, x2, x1);
-                }
-                if x6 < s6 - 1 {
-                    self.inc_if_empty(x6 + 1, x5, x4, x3, x2, x1);
-                }
-                if x5 > 0 {
-                    self.inc_if_empty(x6, x5 - 1, x4, x3, x2, x1);
-                }
-                if x5 < s5 - 1 {
-                    self.inc_if_empty(x6, x5 + 1, x4, x3, x2, x1);
-                }
-                if x4 > 0 {
-                    self.inc_if_empty(x6, x5, x4 - 1, x3, x2, x1);
-                }
-                if x4 < s4 - 1 {
-                    self.inc_if_empty(x6, x5, x4 + 1, x3, x2, x1);
-                }
-                if x3 > 0 {
-                    self.inc_if_empty(x6, x5, x4, x3 - 1, x2, x1);
-                }
-                if x3 < s3 - 1 {
-                    self.inc_if_empty(x6, x5, x4, x3 + 1, x2, x1);
-                }
-                if x2 > 0 {
-                    self.inc_if_empty(x6, x5, x4, x3, x2 - 1, x1);
-                }
-                if x2 < s2 - 1 {
-                    self.inc_if_empty(x6, x5, x4, x3, x2 + 1, x1);
-                }
-                if x1 > 0 {
-                    self.inc_if_empty(x6, x5, x4, x3, x2, x1 - 1);
-                }
-                if x1 < s1 - 1 {
-                    self.inc_if_empty(x6, x5, x4, x3, x2, x1 + 1);
+                // increment the values of the neighbouring cells
+                for n in self.neighbors((x6, x5, x4, x3, x2, x1)) {
+                    let (x6, x5, x4, x3, x2, x1) = n;
+
+                    if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
+                        self.board[[x6, x5, x4, x3, x2, x1]] += 1;
+                    }
                 }
             }
         }
