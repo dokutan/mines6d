@@ -1,5 +1,6 @@
 use ndarray::prelude::*;
 use rand::Rng;
+use std::{collections::HashSet, vec::Vec};
 
 #[cfg(test)]
 #[path = "board_tests.rs"]
@@ -79,6 +80,55 @@ impl Board {
         value & 0x1fff
     }
 
+    // Returns all neighbors of the given cell
+    pub fn neighbors(
+        &self,
+        cell: (usize, usize, usize, usize, usize, usize),
+    ) -> Vec<(usize, usize, usize, usize, usize, usize)> {
+        let mut result = Vec::new();
+        let (x6, x5, x4, x3, x2, x1) = cell;
+        let (s6, s5, s4, s3, s2, s1) = self.board.dim();
+
+        if x6 > 0 {
+            result.push((x6 - 1, x5, x4, x3, x2, x1));
+        }
+        if x6 < s6 - 1 {
+            result.push((x6 + 1, x5, x4, x3, x2, x1));
+        }
+        if x5 > 0 {
+            result.push((x6, x5 - 1, x4, x3, x2, x1));
+        }
+        if x5 < s5 - 1 {
+            result.push((x6, x5 + 1, x4, x3, x2, x1));
+        }
+        if x4 > 0 {
+            result.push((x6, x5, x4 - 1, x3, x2, x1));
+        }
+        if x4 < s4 - 1 {
+            result.push((x6, x5, x4 + 1, x3, x2, x1));
+        }
+        if x3 > 0 {
+            result.push((x6, x5, x4, x3 - 1, x2, x1));
+        }
+        if x3 < s3 - 1 {
+            result.push((x6, x5, x4, x3 + 1, x2, x1));
+        }
+        if x2 > 0 {
+            result.push((x6, x5, x4, x3, x2 - 1, x1));
+        }
+        if x2 < s2 - 1 {
+            result.push((x6, x5, x4, x3, x2 + 1, x1));
+        }
+        if x1 > 0 {
+            result.push((x6, x5, x4, x3, x2, x1 - 1));
+        }
+        if x1 < s1 - 1 {
+            result.push((x6, x5, x4, x3, x2, x1 + 1));
+        }
+
+        result
+    }
+
     /// Decrements self.cheats_remaining and reveals the contents of a covered cell if self.cheats_remaining > 0.
     /// Returns true if all mines have been correctly identified.
     pub fn cheat_cell(&mut self, cell: (usize, usize, usize, usize, usize, usize)) -> bool {
@@ -92,7 +142,7 @@ impl Board {
             && !Board::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]])
         {
             self.cheats_remaining -= 1;
-            self.uncover_recursively(cell, 3);
+            self.uncover_recursively(cell);
             false
         } else if !Board::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]]) {
             self.cheats_remaining -= 1;
@@ -152,7 +202,7 @@ impl Board {
         if !Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
             true
         } else if Board::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
-            self.uncover_recursively(cell, 3000);
+            self.uncover_recursively(cell);
             false
         } else {
             false
@@ -160,60 +210,45 @@ impl Board {
     }
 
     /// Recursively uncovers empty cells.
-    fn uncover_recursively(&mut self, cell: (usize, usize, usize, usize, usize, usize), ttl: u32) {
-        // TODO! rewrite this. Using recursion causes a stack overflow if the depth is not limited.
-        // Limiting the depth might leave some cells covered.
-        let (x6, x5, x4, x3, x2, x1) = cell;
-        let (s6, s5, s4, s3, s2, s1) = self.board.dim();
+    fn uncover_recursively(&mut self, cell: (usize, usize, usize, usize, usize, usize)) {
+        let mut set = HashSet::new();
+        set.insert(cell);
 
-        if Board::is_covered(self.board[[x6, x5, x4, x3, x2, x1]])
-            && Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]])
-        {
-            self.board[[x6, x5, x4, x3, x2, x1]] |= 0xc000;
+        // repeat until the set is empty
+        loop {
+            // using these sets is required to avoid a mutable iterator
+            let mut remove_set = HashSet::new(); // holds the elements that should be removed from set
+            let mut insert_set = HashSet::new(); // holds the elements that should be inserted into set
 
-            let ttl = ttl - 1;
-            if ttl == 0 {
-                return;
+            for c in set.iter() {
+                let (x6, x5, x4, x3, x2, x1) = *c;
+
+                // remove cell from set
+                remove_set.insert(*c);
+
+                // uncover cell
+                self.board[[x6, x5, x4, x3, x2, x1]] |= 0xc000;
+
+                // store covered neighbors if the cell has no mines as neighbors
+                if Board::mines(self.board[[x6, x5, x4, x3, x2, x1]]) == 0 {
+                    for n in self.neighbors(*c) {
+                        let (x6, x5, x4, x3, x2, x1) = n;
+
+                        if Board::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
+                            insert_set.insert(n);
+                        }
+                    }
+                }
             }
 
-            if Board::mines(self.board[[x6, x5, x4, x3, x2, x1]]) == 0 {
-                // uncover the neighbouring cells, TODO! make neighborhood rules configurable
-                if x6 > 0 {
-                    self.uncover_recursively((x6 - 1, x5, x4, x3, x2, x1), ttl);
-                }
-                if x6 < s6 - 1 {
-                    self.uncover_recursively((x6 + 1, x5, x4, x3, x2, x1), ttl);
-                }
-                if x5 > 0 {
-                    self.uncover_recursively((x6, x5 - 1, x4, x3, x2, x1), ttl);
-                }
-                if x5 < s5 - 1 {
-                    self.uncover_recursively((x6, x5 + 1, x4, x3, x2, x1), ttl);
-                }
-                if x4 > 0 {
-                    self.uncover_recursively((x6, x5, x4 - 1, x3, x2, x1), ttl);
-                }
-                if x4 < s4 - 1 {
-                    self.uncover_recursively((x6, x5, x4 + 1, x3, x2, x1), ttl);
-                }
-                if x3 > 0 {
-                    self.uncover_recursively((x6, x5, x4, x3 - 1, x2, x1), ttl);
-                }
-                if x3 < s3 - 1 {
-                    self.uncover_recursively((x6, x5, x4, x3 + 1, x2, x1), ttl);
-                }
-                if x2 > 0 {
-                    self.uncover_recursively((x6, x5, x4, x3, x2 - 1, x1), ttl);
-                }
-                if x2 < s2 - 1 {
-                    self.uncover_recursively((x6, x5, x4, x3, x2 + 1, x1), ttl);
-                }
-                if x1 > 0 {
-                    self.uncover_recursively((x6, x5, x4, x3, x2, x1 - 1), ttl);
-                }
-                if x1 < s1 - 1 {
-                    self.uncover_recursively((x6, x5, x4, x3, x2, x1 + 1), ttl);
-                }
+            // update set
+            set.extend(insert_set);
+            for c in remove_set {
+                set.remove(&c);
+            }
+
+            if set.is_empty() {
+                break;
             }
         }
     }
