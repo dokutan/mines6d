@@ -70,11 +70,11 @@ impl BoardView {
             current_view,
             current_pos,
             tileset,
-            h_space: h_space,
+            h_space,
             view_padding: 2,
             y_offset: 5,
             label_len: 6,
-            options: options,
+            options,
         }
     }
 

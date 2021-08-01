@@ -74,7 +74,7 @@ impl Board {
         value & 0x2000 == 0x0000
     }
 
-    /// Returns the number of mines in a cell, or the number of mines in the neighbouring cells if it is empty.
+    /// Returns the number of mines in a cell, or the number of mines in the neighboring cells if it is empty.
     pub fn mines(value: u16) -> u16 {
         value & 0x1fff
     }
@@ -88,7 +88,7 @@ impl Board {
 
         let (x6, x5, x4, x3, x2, x1) = cell;
 
-        let result = if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]])
+        if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]])
             && !Board::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]])
         {
             self.cheats_remaining -= 1;
@@ -99,9 +99,7 @@ impl Board {
             self.flag_cell(cell)
         } else {
             false
-        };
-
-        result
+        }
     }
 
     /// Flags a cell as containing a mine, returns true if all mines have been correctly identified.

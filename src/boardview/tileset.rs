@@ -11,8 +11,8 @@ impl Tileset {
     /// Creates a new Tileset containing default values.
     pub fn new(use_color: bool, use_unicode: bool) -> Self {
         Tileset {
-            use_color: use_color,
-            use_unicode: use_unicode,
+            use_color,
+            use_unicode,
         }
     }
 

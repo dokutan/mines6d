@@ -102,10 +102,9 @@ fn main() {
     // set cursive theme
     let options = get_options();
     if let Some(config) = options.config {
-        if config.theme_file != "" {
-            match siv.load_theme_file(config.theme_file.as_str()) {
-                Err(err) => println!("Couldn't load theme file: {:?}", err),
-                _ => (),
+        if !config.theme_file.is_empty() {
+            if let Err(err) = siv.load_theme_file(config.theme_file.as_str()) {
+                println!("Couldn't load theme file: {:?}", err);
             }
         }
     }
