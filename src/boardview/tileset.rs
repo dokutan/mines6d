@@ -8,24 +8,24 @@ pub struct Tileset {
 }
 
 impl Tileset {
-    /// Creates a new Tileset containing default values.
-    pub fn new(use_color: bool, use_unicode: bool) -> Self {
-        Tileset {
+    /// Creates a new `Tileset` containing default values.
+    pub const fn new(use_color: bool, use_unicode: bool) -> Self {
+        Self {
             use_color,
             use_unicode,
         }
     }
 
-    /// Checks self.use_color and self.use_unicode and returns a formatted String and Colorstyle.
+    /// Checks `self.use_color` and `self.use_unicode` and returns a formatted `String` and `Colorstyle`.
     pub fn format_cell(&self, value: u16) -> (String, ColorStyle) {
         let string = if self.use_unicode {
-            self.format_cell_unicode(value)
+            Self::format_cell_unicode(value)
         } else {
-            self.format_cell_ascii(value)
+            Self::format_cell_ascii(value)
         };
 
         let style = if self.use_color {
-            self.format_cell_colorstyle(value)
+            Self::format_cell_colorstyle(value)
         } else {
             ColorStyle::inherit_parent()
         };
@@ -34,7 +34,7 @@ impl Tileset {
     }
 
     /// Formats value using ASCII characters.
-    pub fn format_cell_ascii(&self, value: u16) -> String {
+    pub fn format_cell_ascii(value: u16) -> String {
         if board::Board::is_covered(value) {
             "#".to_string()
         } else if board::Board::is_flagged(value) {
@@ -54,7 +54,7 @@ impl Tileset {
     }
 
     /// Formats value using Unicode characters.
-    pub fn format_cell_unicode(&self, value: u16) -> String {
+    pub fn format_cell_unicode(value: u16) -> String {
         if board::Board::is_covered(value) {
             "▮".to_string()
         } else if board::Board::is_flagged(value) {
@@ -73,8 +73,8 @@ impl Tileset {
         }
     }
 
-    /// Returns the ColorStyle that matches value.
-    pub fn format_cell_colorstyle(&self, value: u16) -> ColorStyle {
+    /// Returns the  `ColorStyle` that matches value.
+    pub fn format_cell_colorstyle(value: u16) -> ColorStyle {
         let bg = Color::Dark(BaseColor::White);
 
         if board::Board::is_covered(value) {

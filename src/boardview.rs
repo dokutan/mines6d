@@ -65,7 +65,7 @@ impl BoardView {
             2
         };
 
-        BoardView {
+        Self {
             board,
             current_view,
             current_pos,
@@ -104,26 +104,26 @@ impl BoardView {
         )
     }
 
-    /// Changes self.current_view and self.current_pos according to direction, bounded by the board size.
+    /// Changes `self.current_view` and `self.current_pos` according to direction, bounded by the board size.
     pub fn change_pos(&mut self, direction: (i8, i8, i8, i8, i8, i8)) {
         let (s6, s5, s4, s3, s2, s1) = self.board.board.dim();
         let (d6, d5, d4, d3, d2, d1) = direction;
 
-        self.current_view.0 = BoardView::add_checked(self.current_view.0, d6, 0, s6 - 1);
-        self.current_view.1 = BoardView::add_checked(self.current_view.1, d5, 0, s5 - 1);
-        self.current_view.2 = BoardView::add_checked(self.current_view.2, d4, 0, s4 - 1);
-        self.current_view.3 = BoardView::add_checked(self.current_view.3, d3, 0, s3 - 1);
-        self.current_pos.0 = BoardView::add_checked(self.current_pos.0, d2, 0, s2 - 1);
-        self.current_pos.1 = BoardView::add_checked(self.current_pos.1, d1, 0, s1 - 1);
+        self.current_view.0 = Self::add_checked(self.current_view.0, d6, 0, s6 - 1);
+        self.current_view.1 = Self::add_checked(self.current_view.1, d5, 0, s5 - 1);
+        self.current_view.2 = Self::add_checked(self.current_view.2, d4, 0, s4 - 1);
+        self.current_view.3 = Self::add_checked(self.current_view.3, d3, 0, s3 - 1);
+        self.current_pos.0 = Self::add_checked(self.current_pos.0, d2, 0, s2 - 1);
+        self.current_pos.1 = Self::add_checked(self.current_pos.1, d1, 0, s1 - 1);
     }
 
     fn draw_board(&self, printer: &Printer, offset: (usize, usize), view: (i8, i8, i8, i8)) {
         let (s6, s5, s4, s3, y, x) = self.board.board.dim();
 
-        let x6 = BoardView::add_checked(self.current_view.0, view.0, 0, s6 - 1);
-        let x5 = BoardView::add_checked(self.current_view.1, view.1, 0, s5 - 1);
-        let x4 = BoardView::add_checked(self.current_view.2, view.2, 0, s4 - 1);
-        let x3 = BoardView::add_checked(self.current_view.3, view.3, 0, s3 - 1);
+        let x6 = Self::add_checked(self.current_view.0, view.0, 0, s6 - 1);
+        let x5 = Self::add_checked(self.current_view.1, view.1, 0, s5 - 1);
+        let x4 = Self::add_checked(self.current_view.2, view.2, 0, s4 - 1);
+        let x3 = Self::add_checked(self.current_view.3, view.3, 0, s3 - 1);
 
         // valid view ?
         if (x6 == self.current_view.0 && view.0 != 0)
@@ -154,7 +154,7 @@ impl BoardView {
     }
 
     // a + b if: min <= (a + b) <= max
-    pub fn add_checked(a: usize, b: i8, min: usize, max: usize) -> usize {
+    pub const fn add_checked(a: usize, b: i8, min: usize, max: usize) -> usize {
         let mut a = a as isize;
         a += b as isize;
 

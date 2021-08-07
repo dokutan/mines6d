@@ -1,7 +1,7 @@
 use clap::{App, Arg};
 use cursive::{
     event::{Event, Key},
-    traits::*,
+    traits::{Boxable, Identifiable},
     view::Scrollable,
     views::{Dialog, DummyView, EditView, LinearLayout, Panel, ScrollView, TextView},
     Cursive,

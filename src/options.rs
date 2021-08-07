@@ -9,8 +9,8 @@ pub struct Options {
 }
 
 impl Options {
-    pub fn new() -> Self {
-        Options {
+    pub const fn new() -> Self {
+        Self {
             history_path: None,
             config_path: None,
             config: None,
@@ -32,15 +32,15 @@ pub struct Config {
 }
 
 // default config values
-fn default_cells_h_space() -> usize {
+const fn default_cells_h_space() -> usize {
     2
 }
 
-fn default_use_unicode() -> bool {
+const fn default_use_unicode() -> bool {
     true
 }
 
-fn default_use_color() -> bool {
+const fn default_use_color() -> bool {
     true
 }
 

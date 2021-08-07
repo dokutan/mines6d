@@ -37,7 +37,7 @@ impl Board {
             mines
         };
 
-        let mut b = Board {
+        let mut b = Self {
             board,
             mines_total: mines,
             mines_flagged: 0,
@@ -51,32 +51,32 @@ impl Board {
     }
 
     /// Checks if a cell having value is covered.
-    pub fn is_covered(value: u16) -> bool {
+    pub const fn is_covered(value: u16) -> bool {
         value & 0xc000 == 0x0000
     }
 
     /// Checks if a cell having value is uncovered.
-    pub fn is_uncovered(value: u16) -> bool {
+    pub const fn is_uncovered(value: u16) -> bool {
         value & 0xc000 == 0xc000
     }
 
     /// Checks if a cell having value is flagged.
-    pub fn is_flagged(value: u16) -> bool {
+    pub const fn is_flagged(value: u16) -> bool {
         value & 0xc000 == 0x4000
     }
 
     /// Checks if a cell having value is marked.
-    pub fn is_marked(value: u16) -> bool {
+    pub const fn is_marked(value: u16) -> bool {
         value & 0xc000 == 0x8000
     }
 
     /// Checks if a cell having value is empty.
-    pub fn is_empty(value: u16) -> bool {
+    pub const fn is_empty(value: u16) -> bool {
         value & 0x2000 == 0x0000
     }
 
     /// Returns the number of mines in a cell, or the number of mines in the neighboring cells if it is empty.
-    pub fn mines(value: u16) -> u16 {
+    pub const fn mines(value: u16) -> u16 {
         value & 0x1fff
     }
 
@@ -129,7 +129,7 @@ impl Board {
         result
     }
 
-    /// Decrements self.cheats_remaining and reveals the contents of a covered cell if self.cheats_remaining > 0.
+    /// Decrements `self.cheats_remaining` and reveals the contents of a covered cell if `self.cheats_remaining` > 0.
     /// Returns true if all mines have been correctly identified.
     pub fn cheat_cell(&mut self, cell: (usize, usize, usize, usize, usize, usize)) -> bool {
         if self.cheats_remaining == 0 {
@@ -138,13 +138,13 @@ impl Board {
 
         let (x6, x5, x4, x3, x2, x1) = cell;
 
-        if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]])
-            && !Board::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]])
+        if Self::is_empty(self.board[[x6, x5, x4, x3, x2, x1]])
+            && !Self::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]])
         {
             self.cheats_remaining -= 1;
             self.uncover_recursively(cell);
             false
-        } else if !Board::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]]) {
+        } else if !Self::is_uncovered(self.board[[x6, x5, x4, x3, x2, x1]]) {
             self.cheats_remaining -= 1;
             self.flag_cell(cell)
         } else {
@@ -156,13 +156,13 @@ impl Board {
     pub fn flag_cell(&mut self, cell: (usize, usize, usize, usize, usize, usize)) -> bool {
         let (x6, x5, x4, x3, x2, x1) = cell;
 
-        if !Board::is_flagged(self.board[[x6, x5, x4, x3, x2, x1]])
-            && Board::is_covered(self.board[[x6, x5, x4, x3, x2, x1]])
+        if !Self::is_flagged(self.board[[x6, x5, x4, x3, x2, x1]])
+            && Self::is_covered(self.board[[x6, x5, x4, x3, x2, x1]])
         {
             self.board[[x6, x5, x4, x3, x2, x1]] =
                 (self.board[[x6, x5, x4, x3, x2, x1]] | 0x4000) & 0x7fff;
             self.mines_flagged += 1;
-        } else if Board::is_flagged(self.board[[x6, x5, x4, x3, x2, x1]]) {
+        } else if Self::is_flagged(self.board[[x6, x5, x4, x3, x2, x1]]) {
             self.board[[x6, x5, x4, x3, x2, x1]] &= 0x3fff;
             self.mines_flagged -= 1;
         }
@@ -170,7 +170,7 @@ impl Board {
         // are all mines flagged correctly ?
         if self.mines_flagged == self.mines_total {
             for cell in self.board.iter() {
-                if Board::is_flagged(*cell) && Board::is_empty(*cell) {
+                if Self::is_flagged(*cell) && Self::is_empty(*cell) {
                     return false;
                 }
             }
@@ -185,11 +185,11 @@ impl Board {
     pub fn mark_cell(&mut self, cell: (usize, usize, usize, usize, usize, usize)) {
         let (x6, x5, x4, x3, x2, x1) = cell;
 
-        if Board::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
+        if Self::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
             self.board[[x6, x5, x4, x3, x2, x1]] =
                 (self.board[[x6, x5, x4, x3, x2, x1]] | 0x8000) & 0xbfff;
             self.mines_marked += 1;
-        } else if Board::is_marked(self.board[[x6, x5, x4, x3, x2, x1]]) {
+        } else if Self::is_marked(self.board[[x6, x5, x4, x3, x2, x1]]) {
             self.board[[x6, x5, x4, x3, x2, x1]] &= 0x3fff;
             self.mines_marked -= 1;
         }
@@ -199,9 +199,9 @@ impl Board {
     pub fn uncover_cell(&mut self, cell: (usize, usize, usize, usize, usize, usize)) -> bool {
         let (x6, x5, x4, x3, x2, x1) = cell;
 
-        if !Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
+        if !Self::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
             true
-        } else if Board::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
+        } else if Self::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
             self.uncover_recursively(cell);
             false
         } else {
@@ -220,7 +220,7 @@ impl Board {
             let mut remove_set = HashSet::new(); // holds the elements that should be removed from set
             let mut insert_set = HashSet::new(); // holds the elements that should be inserted into set
 
-            for c in set.iter() {
+            for c in &set {
                 let (x6, x5, x4, x3, x2, x1) = *c;
 
                 // remove cell from set
@@ -230,11 +230,11 @@ impl Board {
                 self.board[[x6, x5, x4, x3, x2, x1]] |= 0xc000;
 
                 // store covered neighbors if the cell has no mines as neighbors
-                if Board::mines(self.board[[x6, x5, x4, x3, x2, x1]]) == 0 {
+                if Self::mines(self.board[[x6, x5, x4, x3, x2, x1]]) == 0 {
                     for n in self.neighbors(*c) {
                         let (x6, x5, x4, x3, x2, x1) = n;
 
-                        if Board::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
+                        if Self::is_covered(self.board[[x6, x5, x4, x3, x2, x1]]) {
                             insert_set.insert(n);
                         }
                     }
@@ -267,7 +267,7 @@ impl Board {
             let x2: usize = rng.gen_range(0..s2);
             let x1: usize = rng.gen_range(0..s1);
 
-            if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
+            if Self::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
                 self.board[[x6, x5, x4, x3, x2, x1]] = 0x2001;
                 number -= 1;
 
@@ -275,7 +275,7 @@ impl Board {
                 for n in self.neighbors((x6, x5, x4, x3, x2, x1)) {
                     let (x6, x5, x4, x3, x2, x1) = n;
 
-                    if Board::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
+                    if Self::is_empty(self.board[[x6, x5, x4, x3, x2, x1]]) {
                         self.board[[x6, x5, x4, x3, x2, x1]] += 1;
                     }
                 }
