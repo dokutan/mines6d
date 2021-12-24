@@ -1,4 +1,5 @@
 Board
+=====
 
 The board is 6-dimensional with coordinates given as (x₁, x₂, x₃, x₄, x₅, x₆).
 It is possible to use fewer dimensions by restricting some xₙ to 1,
@@ -8,17 +9,20 @@ Currently only the von Neumann neigborhood is supported, i.e. each cell has up
 to 12 adjacent cells.
 
 Views
+=====
 
 Multiple views of the board are shown at the same time, all are slices along
 x₄₋₆.
 
 Cheats
+======
 
 It is possible to specify a limited number of cheats, when used they reveal
 the true state of a cell. This is intended to reduce the number of situations
 where guessing is required.
 
 Controls
+========
 
 a, d    movement along x₁
 w, s    movement along x₂

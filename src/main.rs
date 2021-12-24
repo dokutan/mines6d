@@ -179,6 +179,19 @@ fn show_main_menu(s: &mut Cursive) {
                 .scrollable(),
         )
         .title("6D Minesweeper")
+        .button("info", |s| {
+            let x6 = max(get_editview_as(s, "edit_x6", 1), 1);
+            let x5 = max(get_editview_as(s, "edit_x5", 1), 1);
+            let x4 = max(get_editview_as(s, "edit_x4", 1), 1);
+            let x3 = max(get_editview_as(s, "edit_x3", 3), 1);
+            let x2 = max(get_editview_as(s, "edit_x2", 10), 1);
+            let x1 = max(get_editview_as(s, "edit_x1", 10), 1);
+            let mines = get_editview_as(s, "edit_mines", 15);
+            let cheats = get_editview_as(s, "edit_cheats", 0);
+
+            //s.pop_layer();
+            show_info(s, (x6, x5, x4, x3, x2, x1), mines, cheats);
+        })
         .button("start", |s| {
             let x6 = max(get_editview_as(s, "edit_x6", 1), 1);
             let x5 = max(get_editview_as(s, "edit_x5", 1), 1);
@@ -191,6 +204,45 @@ fn show_main_menu(s: &mut Cursive) {
 
             s.pop_layer();
             show_board(s, (x6, x5, x4, x3, x2, x1), mines, cheats);
+        }),
+    );
+}
+
+// shows more detailed information about the current settings
+fn show_info(
+    s: &mut Cursive,
+    size: (usize, usize, usize, usize, usize, usize),
+    mines: u32,
+    cheats: u32,
+) {
+    let (x6, x5, x4, x3, x2, x1) = size;
+    let cells = (x1 * x2 * x3 * x4 * x5 * x6) as u32;
+    let mines_percent = (mines as f64 / cells as f64) * 100 as f64;
+    let cells_per_mine = cells / mines;
+
+    s.add_layer(
+        Dialog::around(
+            LinearLayout::vertical()
+                .child(TextView::new(format!(
+                    "Board size:          ({}, {}, {}, {}, {}, {})",
+                    x1, x2, x3, x4, x5, x6
+                )))
+                .child(TextView::new(format!("Number of cells:     {}", cells)))
+                .child(TextView::new(format!("Number of mines:     {}", mines)))
+                .child(TextView::new(format!("Number of cheats:    {}", cheats)))
+                .child(TextView::new(format!(
+                    "Percentage of mines: {:.3} %",
+                    mines_percent
+                )))
+                .child(TextView::new(format!(
+                    "Cells per mine:      {}",
+                    cells_per_mine
+                )))
+                .scrollable(),
+        )
+        .title("Info")
+        .button("ok", |s| {
+            s.pop_layer();
         }),
     );
 }
