@@ -252,37 +252,37 @@ impl cursive::view::View for BoardView {
 
         // x3
         if x3 > 1 {
-            printer.print((x, y - 1), "x₃: +1");
-            self.draw_board(printer, (x, y), (0, 0, 0, 1));
-            printer.print((x, y + view_height + space - 1), "x₃: -1");
-            self.draw_board(printer, (x, y + view_height + space), (0, 0, 0, -1));
+            printer.print((x, y - 1), "x₃: -1");
+            self.draw_board(printer, (x, y), (0, 0, 0, -1));
+            printer.print((x, y + view_height + space - 1), "x₃: +1");
+            self.draw_board(printer, (x, y + view_height + space), (0, 0, 0, 1));
             x += view_width + space;
         }
 
         // x4
         if x4 > 1 {
-            printer.print((x, y - 1), "x₄: +1");
-            self.draw_board(printer, (x, y), (0, 0, 1, 0));
-            printer.print((x, y + view_height + space - 1), "x₄: -1");
-            self.draw_board(printer, (x, y + view_height + space), (0, 0, -1, 0));
+            printer.print((x, y - 1), "x₄: -1");
+            self.draw_board(printer, (x, y), (0, 0, -1, 0));
+            printer.print((x, y + view_height + space - 1), "x₄: +1");
+            self.draw_board(printer, (x, y + view_height + space), (0, 0, 1, 0));
             x += view_width + space;
         }
 
         // x5
         if x5 > 1 {
-            printer.print((x, y - 1), "x₅: +1");
-            self.draw_board(printer, (x, y), (0, 1, 0, 0));
-            printer.print((x, y + view_height + space - 1), "x₅: -1");
-            self.draw_board(printer, (x, y + view_height + space), (0, -1, 0, 0));
+            printer.print((x, y - 1), "x₅: -1");
+            self.draw_board(printer, (x, y), (0, -1, 0, 0));
+            printer.print((x, y + view_height + space - 1), "x₅: +1");
+            self.draw_board(printer, (x, y + view_height + space), (0, 1, 0, 0));
             x += view_width + space;
         }
 
         // x6
         if x6 > 1 {
-            printer.print((x, y - 1), "x₆: +1");
-            self.draw_board(printer, (x, y), (1, 0, 0, 0));
-            printer.print((x, y + view_height + space - 1), "x₆: -1");
-            self.draw_board(printer, (x, y + view_height + space), (-1, 0, 0, 0));
+            printer.print((x, y - 1), "x₆: -1");
+            self.draw_board(printer, (x, y), (-1, 0, 0, 0));
+            printer.print((x, y + view_height + space - 1), "x₆: +1");
+            self.draw_board(printer, (x, y + view_height + space), (1, 0, 0, 0));
         }
     }
 
